@@ -1,0 +1,56 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__ = 0x04000000;
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__ = 0x04000000;
+define symbol __ICFEDIT_region_ROM_end__   = 0x040BFFFF;
+define symbol __ICFEDIT_region_RAM_start__ = 0x20000000;
+define symbol __ICFEDIT_region_RAM_end__   = 0x2007FFFF;
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__ = 0x8000;
+define symbol __ICFEDIT_size_heap__   = 0x800;
+/**** End of ICF editor section. ###ICF###*/
+
+/*============================================================================*/
+/* M E M O R Y   R E G I O N                                                  */
+/*============================================================================*/
+define memory mem with size = 4G;
+
+define region iram   = mem:[from 0x04000000 size 768K];					/*!< Instruction RAM  */
+define region sflash = mem:[from 0x02000000 size   4M];					/*!< Serial Flash-ROM */
+define region dram   = mem:[from 0x20000000 size 512K];					/*!< Data RAM         */
+define region flash  = mem:[from 0x10000000 size   4M];					/*!< Flash-ROM        */
+
+
+/*============================================================================*/
+/* B L O C K   L A Y O U T                                                    */
+/*============================================================================*/
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+
+
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+
+/*============================================================================*/
+/* S E C T I O N   L A Y O U T                                                */
+/*============================================================================*/
+//---------------------------------
+// Flash ROM
+//---------------------------------
+
+//---------------------------------
+// Instruction RAM
+//---------------------------------
+place at start of iram { readonly section vectors };
+place in          iram { readonly };
+
+//---------------------------------
+// Data RAM
+//---------------------------------
+place in dram { readwrite,
+                block HEAP,
+                block CSTACK
+              };
